@@ -59,20 +59,6 @@ Cash.TextScaled = true
 Cash.TextSize = 14
 Cash.TextWrapped = true
 
-local playerz = game.Players.LocalPlayer
-local cashValue = playerz:WaitForChild("Datafolder"):WaitForChild("Currency")
-
-local function updateCash()
-    Cash.Text = "Wallet: " .. cashValue.Value
-end
-
-
-updateCash()
-
-
-cashValue:GetPropertyChangedSignal("Value"):Connect(updateCash)
-
-
 	if not game:IsLoaded() then
 		repeat wait(.1) until game:IsLoaded() 
 	end
@@ -720,6 +706,18 @@ local function Initiate()
 		end
 	end)
 end
+
+local playerz = game.Players.LocalPlayer
+local cashValue = playerz:WaitForChild("Datafolder"):WaitForChild("Currency")
+
+local function updateCash()
+    Cash.Text = "Wallet: " .. cashValue.Value
+end
+
+
+updateCash()
+
+cashValue:GetPropertyChangedSignal("Value"):Connect(updateCash)
 
 if Host then
 	Initiate()
