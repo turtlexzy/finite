@@ -44,21 +44,6 @@ Finite.TextScaled = true
 Finite.TextSize = 14
 Finite.TextWrapped = true
 
-Cash.Name = "Cash"
-Cash.Parent = Frame
-Cash.BackgroundColor3 = Color3.new(1, 1, 1)
-Cash.BackgroundTransparency = 1
-Cash.BorderColor3 = Color3.new(0, 0, 0)
-Cash.BorderSizePixel = 0
-Cash.Position = UDim2.new(0.262805402, 0, 0.293686152, 0)
-Cash.Size = UDim2.new(0, 311, 0, 102)
-Cash.Font = Enum.Font.SourceSansItalic
-Cash.Text = "Wallet: "
-Cash.TextColor3 = Color3.new(1, 1, 1)
-Cash.TextScaled = true
-Cash.TextSize = 14
-Cash.TextWrapped = true
-
 	if not game:IsLoaded() then
 		repeat wait(.1) until game:IsLoaded() 
 	end
@@ -707,17 +692,6 @@ local function Initiate()
 	end)
 end
 
-local playerz = game.Players.LocalPlayer
-local cashValue = playerz:WaitForChild("Datafolder"):WaitForChild("Currency")
-
-local function updateCash()
-    Cash.Text = "Wallet: " .. cashValue.Value
-end
-
-
-updateCash()
-
-cashValue:GetPropertyChangedSignal("Value"):Connect(updateCash)
 
 if Host then
 	Initiate()
