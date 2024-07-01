@@ -113,7 +113,6 @@ end
 loadstring(game:HttpGet("https://raw.githubusercontent.com/MsorkyScripts/OpenSourceAntiCheat/main/AntiCheatBypass.txt"))()
 getgenv().Executed = true
 
---// Code --//
 
 local Connections = {}
 
