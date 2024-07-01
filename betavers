@@ -1,0 +1,212 @@
+local Testing = false
+
+-- Global settings
+local player = game.Players.LocalPlayer
+local userId = player.UserId
+local name = player.Name
+local isAlt = table.find(getgenv().Alts, userId)
+local isHost = name == getgenv().HostUser
+local alreadyExecuted = getgenv().Executed
+
+if not isAlt or isHost or alreadyExecuted then return end
+
+-- Initialize settings
+getgenv().PointInTable = isAlt
+UserSettings().GameSettings.MasterVolume = 0
+local Crashed = false
+
+if not Testing then
+    local ScreenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local Frame = Instance.new("Frame", ScreenGui)
+    Frame.BackgroundColor3 = Color3.new(0, 0, 0)
+    Frame.BorderColor3 = Color3.new(0, 0, 0)
+    Frame.BorderSizePixel = 0
+    Frame.Position = UDim2.new(-0.11, 0, -0.05, 0)
+    Frame.Size = UDim2.new(2, 0, 2, 0)
+
+    local Finite = Instance.new("TextLabel", Frame)
+    Finite.Name = "Finite"
+    Finite.BackgroundColor3 = Color3.new(1, 1, 1)
+    Finite.BackgroundTransparency = 1
+    Finite.BorderColor3 = Color3.new(0, 0, 0)
+    Finite.BorderSizePixel = 0
+    Finite.Position = UDim2.new(0.25, 0, 0.17, 0)
+    Finite.Size = UDim2.new(0, 352, 0, 114)
+    Finite.Font = Enum.Font.SourceSansItalic
+    Finite.Text = "Finite Alt Control"
+    Finite.TextColor3 = Color3.new(1, 1, 1)
+    Finite.TextScaled = true
+    Finite.TextWrapped = true
+
+    if not game:IsLoaded() then
+        repeat wait(0.1) until game:IsLoaded()
+    end
+
+    local vu = game:GetService("VirtualUser")
+    player.Idled:connect(function()
+        vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+        wait(1)
+        vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+    end)
+    game:GetService("RunService"):Set3dRenderingEnabled(false)
+    setfpscap(5)
+end
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/MsorkyScripts/OpenSourceAntiCheat/main/AntiCheatBypass.txt"))()
+getgenv().Executed = true
+
+-- Script Variables and Services
+local Connections = {}
+local Services = {
+    RP = game:GetService("ReplicatedStorage"),
+    Players = game:GetService("Players"),
+}
+
+local Variables = {
+    HostUser = getgenv().HostUser,
+    Player = player,
+}
+
+local Host = Services.Players:FindFirstChild(Variables.HostUser)
+
+if not Host then
+    print("Host is not here, waiting for him to join!")
+    Services.Players:WaitForChild(Variables.HostUser, 9e9)
+    Host = Services.Players:FindFirstChild(Variables.HostUser)
+end
+
+print("Script loaded!")
+
+local CmdSettings = {}
+
+local function Drop(Type)
+    if Type and not CmdSettings.Dropping then
+        CmdSettings.Dropping = true
+        CmdSettings.CustomDrop = nil
+        CmdSettings.Aura = nil
+        while CmdSettings.Dropping do
+            local args = {"DropMoney", "10000"}
+            Services.RP.MainEvent:FireServer(unpack(args))
+            wait(2.5)
+        end
+    elseif not Type then
+        CmdSettings.Dropping = nil
+        CmdSettings.CustomDrop = nil
+    end
+end
+
+local function AirLock(Type)
+    local BP = player.Character.HumanoidRootPart:FindFirstChild("AirLockBP")
+    if Type then
+        if BP then BP:Destroy() end
+        CmdSettings.AirLock = true
+        player.Character.HumanoidRootPart.CFrame *= CFrame.new(0, 10, 0)
+        BP = Instance.new("BodyPosition", player.Character.HumanoidRootPart)
+        BP.Name = "AirLockBP"
+        BP.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        BP.Position = player.Character.HumanoidRootPart.Position
+    else
+        CmdSettings.AirLock = nil
+        if BP then BP:Destroy() end
+    end
+end
+
+local function GetPlayerFromString(str, ignore)
+    for _, Targ in pairs(Services.Players:GetPlayers()) do
+        if not ignore and Targ == player then continue end
+        if Targ.Name:lower():sub(1, #str) == str:lower() or Targ.DisplayName:lower():sub(1, #str) == str:lower() then
+            return Targ
+        end
+    end
+    return nil
+end
+
+local function BringPlr(Target, POS)
+    if getgenv().PointInTable == 1 and Target.Character and Target.Character:FindFirstChild("Humanoid") then
+        CmdSettings.Aura = nil
+        local TargetPlr = Target
+        local c = player.Character
+        local Root = c.HumanoidRootPart
+        local PrevCF = Root.CFrame
+        local TargetChar = TargetPlr.Character
+
+        if TargetPlr and TargetPlr.Character and TargetPlr.Character:FindFirstChild("Humanoid") and not (not c or not c:FindFirstChild("BodyEffects") or not c.BodyEffects:FindFirstChild("K.O") or not c.BodyEffects:FindFirstChild("Grabbed") or c.BodyEffects.K.O.Value or c.BodyEffects.Grabbed.Value ~= nil or not TargetChar or not TargetChar:FindFirstChild("BodyEffects") or not TargetChar.BodyEffects:FindFirstChild("K.O") or TargetChar.BodyEffects.K.O.Value) then
+            CmdSettings.IsLocking = true
+            c.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+            Root.CFrame = TargetChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1)
+
+            repeat
+                wait()
+                Root.CFrame = TargetChar.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1)
+                if not c:FindFirstChild("Combat") then
+                    c.Humanoid:EquipTool(player.Backpack.Combat)
+                end
+                c.Combat:Activate()
+            until not TargetPlr or not TargetChar or not c or not c:FindFirstChild("BodyEffects") or not c.BodyEffects:FindFirstChild("K.O") or not c.BodyEffects:FindFirstChild("Grabbed") or c.BodyEffects.K.O.Value or c.BodyEffects.Grabbed.Value ~= nil or not TargetChar or not TargetChar:FindFirstChild("BodyEffects") or not TargetChar.BodyEffects:FindFirstChild("K.O") or TargetChar.BodyEffects.K.O.Value
+
+            Root.CFrame = TargetChar.LowerTorso.CFrame * CFrame.new(0, 3, 0)
+            if not c.BodyEffects.Grabbed.Value then
+                if TargetChar.BodyEffects.K.O.Value and c:FindFirstChild("BodyEffects") and c.BodyEffects:FindFirstChild("K.O") and not c.BodyEffects.K.O.Value then
+                    local args = {"Grabbing", false}
+                    Services.RP.MainEvent:FireServer(unpack(args))
+                end
+            end
+
+            repeat
+                wait(0.35)
+                if not (not TargetPlr or not TargetChar or not c or not c:FindFirstChild("BodyEffects") or not c.BodyEffects:FindFirstChild("K.O") or not c.BodyEffects:FindFirstChild("Grabbed") or c.BodyEffects.K.O.Value or c.BodyEffects.Grabbed.Value ~= nil or not TargetChar or not TargetChar:FindFirstChild("BodyEffects") or not TargetChar.BodyEffects:FindFirstChild("K.O") or TargetChar.BodyEffects.K.O.Value) then
+                    Root.CFrame = TargetChar.LowerTorso.CFrame * CFrame.new(0, 3, 0)
+                    if c.BodyEffects.Grabbed.Value ~= nil then
+                        -- Additional logic for grabbed state
+                    else
+                        if TargetChar.BodyEffects.K.O.Value and not c.BodyEffects.K.O.Value then
+                            local args = {"Grabbing", false}
+                            Services.RP.MainEvent:FireServer(unpack(args))
+                        end
+                    end
+                end
+            until not TargetPlr or not TargetChar or not c or not c:FindFirstChild("BodyEffects") or not c.BodyEffects:FindFirstChild("K.O") or not c.BodyEffects:FindFirstChild("Grabbed") or c.BodyEffects.K.O.Value or c.BodyEffects.Grabbed.Value ~= nil or not TargetChar or not TargetChar:FindFirstChild("BodyEffects") or not TargetChar.BodyEffects:FindFirstChild("K.O") or TargetChar.BodyEffects.K.O.Value
+
+            Root.CFrame = POS or Host.Character.HumanoidRootPart.CFrame
+            CmdSettings.IsLocking = nil
+            wait(1.5)
+            local args = {"Grabbing", false}
+            Services.RP.MainEvent:FireServer(unpack(args))
+            Root.CFrame = PrevCF
+            c.Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+        end
+    end
+end
+
+local Allowed = {}
+
+local function onChatted(Msg, Plr)
+    if table.find(Allowed, Plr.Name) or Plr.Name == Variables.HostUser then
+        local Prefix = "-"
+        local Args = Msg:split(" ")
+        if Args[1] == Prefix.."bring" then
+            local Targ = GetPlayerFromString(Args[2])
+            if Targ then
+                print(Targ)
+                BringPlr(Targ)
+            end
+        end
+    end
+end
+
+local function Respawn()
+    game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
+    local char = player.Character
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then humanoid:ChangeState(Enum.HumanoidStateType.Dead) end
+    player.Character = nil
+    wait(game.Players.RespawnTime)
+    player:LoadCharacter()
+    game:GetService("StarterGui"):SetCore("ResetButtonCallback", false)
+end
+
+if not Connections["Chatted"] then
+    Connections["Chatted"] = Host.Chatted:connect(function(msg) onChatted(msg, Host) end)
+end
