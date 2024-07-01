@@ -106,7 +106,7 @@ end
 		wait(1)
 		vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
 	end)
-	game:GetService("RunService"):Set3dRenderingEnabled(false)
+	game:GetService("RunService"):Set3dRenderingEnabled(true)
 	setfpscap(5)
 end
 
